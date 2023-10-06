@@ -7,7 +7,7 @@ import Loading from '../components/loading';
 
 function Album() {
   const { id } = useParams();
-  const [album, setAlbum] = useState<AlbumType>();
+  const [albums, setAlbum] = useState<AlbumType>();
   const [musics, setMusics] = useState<SongType[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -15,10 +15,9 @@ function Album() {
     async function fetchMusics() {
       if (!id) return;
       const response = await getMusics(id);
-      setAlbum(response[0]);
-      const songs = response.slice(1)
-        .filter((item): item is SongType => 'trackId' in item);
-      setMusics(songs);
+      const [album, ...albumSongs] = response;
+      setAlbum(album);
+      setMusics(albumSongs);
       setLoading(false);
     }
 
@@ -31,13 +30,14 @@ function Album() {
         <Loading />
       ) : (
         <div>
-          <h1 data-testid="artist-name">{album?.artistName}</h1>
-          <p data-testid="album-name">{album?.collectionName}</p>
+          <h1 data-testid="artist-name">{albums?.artistName}</h1>
+          <p data-testid="album-name">{albums?.collectionName}</p>
           {musics.map((music) => (
             <MusicCard
               key={ music.trackId }
               trackName={ music.trackName }
               previewUrl={ music.previewUrl }
+              trackId={ music.trackId }
             />
           ))}
         </div>
